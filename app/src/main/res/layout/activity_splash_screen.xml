@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGround"
+    tools:context=".SplashScreen">
+
+
+    <TextView
+        android:id="@+id/first_number"
+        android:layout_width="@dimen/square2048Animation"
+        android:layout_height="@dimen/square2048Animation"
+        android:gravity="center_horizontal|center_vertical"
+        android:layout_centerVertical="true"
+        android:background="@color/red"
+        android:textSize="@dimen/sizeAnimation2048"
+        android:layout_marginStart="5dp"
+        android:text="2"/>
+
+    <TextView
+        android:id="@+id/second_number"
+        android:layout_width="@dimen/square2048Animation"
+        android:layout_height="@dimen/square2048Animation"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@id/first_number"
+        android:background="@color/blueSplash"
+        android:textSize="@dimen/sizeAnimation2048"
+        android:text="0"/>
+
+    <TextView
+        android:id="@+id/thrid_number"
+        android:layout_width="@dimen/square2048Animation"
+        android:layout_height="@dimen/square2048Animation"
+        android:layout_marginStart="10dp"
+        android:layout_toStartOf="@id/number4"
+        android:layout_marginEnd="30dp"
+        android:background="@color/blueSplash"
+        android:gravity="center_vertical|center_horizontal"
+        android:textSize="@dimen/sizeAnimation2048"
+        android:text="4"/>
+
+    <TextView
+        android:id="@+id/number4"
+        android:layout_width="@dimen/square2048Animation"
+        android:layout_height="@dimen/square2048Animation"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:background="@color/red"
+        android:textSize="@dimen/sizeAnimation2048"
+        android:layout_marginEnd="5dp"
+        android:text="8"/>
+
+</RelativeLayout>

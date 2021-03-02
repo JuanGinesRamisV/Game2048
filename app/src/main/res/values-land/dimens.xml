@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="marign_text_view">5dp</dimen>
-    <dimen name="sizeTile">55dp</dimen>
-    <dimen name="title">50dp</dimen>
+    <dimen name="sizeTile">49dp</dimen>
     <dimen name="sizeAnimation2048">30sp</dimen>
     <dimen name="square2048Animation">60dp</dimen>
-    <dimen name="defaultMargin">10dp</dimen>
 </resources>

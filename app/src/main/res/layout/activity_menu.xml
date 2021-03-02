@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGround"
+    tools:context=".Menu">
+
+    <TextView
+        android:id="@+id/MainTitle2048"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50sp"
+        android:textSize="70dp"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:text="@string/_2048"/>
+
+    <Button
+        android:id="@+id/playButton"
+        android:layout_below="@id/MainTitle2048"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/manageScoresButton"
+        android:layout_alignStart="@id/manageScoresButton"
+        android:text="play"
+        android:backgroundTint="@color/buttonMainMenu"
+        android:onClick="startGame"/>
+
+    <Button
+        android:id="@+id/manageScoresButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MANAGE SCORES"
+        android:layout_below="@id/playButton"
+        android:backgroundTint="@color/buttonMainMenu"
+        android:layout_centerHorizontal="true"
+        android:onClick="manageScores"/>
+
+    <TextView
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/created_by_main_manu"
+        android:layout_width="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:textSize="15dp"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

@@ -10,6 +10,15 @@
     <color name="light_blue">#07DE9D</color>
     <color name="text_view_blue">#6ED6B6</color>
 
+    <color name="backGround">#D2D0CF</color>
+    <color name="backGroundTable">#C1C1C1</color>
+
+    <color name="red">#EC3510</color>
+    <color name="blueSplash">#1120C5</color>
+
+    <color name="scoreButtonColor">#636160</color>
+
+    <color name="nullTile">#A1A0A0</color>
     <color name="number2">#A7B4B0</color>
     <color name="number4">#798581</color>
     <color name="number8">#F76143</color>
@@ -21,4 +30,6 @@
     <color name="number512">#ECB23E</color>
     <color name="number1024">#FF9800</color>
     <color name="number2048">#FFD801</color>
+
+    <color name="buttonMainMenu">#FF9351</color>
 </resources>

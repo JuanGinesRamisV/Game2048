@@ -1,27 +1,35 @@
 package com.example.game;
 
-import androidx.annotation.ContentView;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.game.data.Score;
+import com.example.game.database.ScoreListHelper;
 
 import java.util.Random;
 
 
-public class MainActivity extends AppCompatActivity {
+public class Game extends AppCompatActivity {
     private View generalView;
     private TextView[][] arrayTextView;
+    private String[][] arrayTextViewAux;
+    private String previusScore;
+    private TextView currentScore;
+    private TextView maxScore;
+    private boolean posibleToGoBack;
+    private Context context;
+
+    private long timeStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,59 +38,160 @@ public class MainActivity extends AppCompatActivity {
         this.generalView = findViewById(R.id.mainLayout);
         addTouchListener();
         initializeArray();
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        initializeViews(extras.getString("maxScore"));
+        this.context = this.getApplicationContext();
+        this.timeStart = System.currentTimeMillis();
+        newGameTable();
+    }
+
+    private void newGameTable(){
         for (int i = 0; i < arrayTextView.length; i++) {
             for (int j = 0; j < arrayTextView[0].length; j++) {
                 formatTile(i, j);
             }
         }
-        for (int i = 0; i < 2; i++) {
-            putNewTile();
-        }
+
+        putNewTileDebug(0,0,1024);
+        putNewTileDebug(0,1,1024);
+        backupArrayTextView();
         paintGameTable();
     }
 
+    private void initializeViews(String maxScore) {
+        this.currentScore = findViewById(R.id.currentScoreNumber);
+        this.maxScore = findViewById(R.id.bestScoreNumber);
+        this.maxScore.setText(maxScore);
+    }
+
+    /**
+     * makes a backup of the actual table data in order to do the undoMovement.
+     */
+    private void backupArrayTextView(){
+        for (int i = 0; i < this.arrayTextView.length; i++) {
+            for (int j = 0; j < this.arrayTextView[i].length; j++) {
+                this.arrayTextViewAux[i][j]=this.arrayTextView[i][j].getText().toString();
+            }
+        }
+        this.posibleToGoBack=true;
+        this.previusScore = this.currentScore.getText().toString();
+    }
+
+    /**
+     * handles the onSwipe gestures of the game and decides what to do.
+     */
     private void addTouchListener() {
         generalView.setOnTouchListener(new OnSwipeTouchListener(this.getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
                 super.onSwipeLeft();
-                move("left");
-                pairTiles("left");
-                putNewTile();
-                paintGameTable();
+                makeMovementSwipe("left");
             }
 
             @Override
             public void onSwipeRight() {
                 super.onSwipeRight();
-                move("right");
-                pairTiles("right");
-                putNewTile();
-                paintGameTable();
+                makeMovementSwipe("right");
             }
 
             @Override
             public void onSwipeUp() {
                 super.onSwipeUp();
-                move("up");
-                pairTiles("up");
-                putNewTile();
-                paintGameTable();
+                makeMovementSwipe("up");
             }
 
             @Override
             public void onSwipeDown() {
                 super.onSwipeDown();
-                move("down");
-                pairTiles("down");
-                putNewTile();
-                paintGameTable();
+                makeMovementSwipe("down");
             }
         });
     }
 
+    private void makeMovementSwipe(String direction){
+        backupArrayTextView();
+        move(direction);
+        pairTiles(direction);
+        if (checkIfTableEqualsPreviusMovement()){
+            showMessage("tablero igual ");
+        } else if (countOccupiedTiles()<16){
+            putNewTile();
+            if (countOccupiedTiles()==16){
+                showMessage("tablero lleno");
+                if (!checkIfLastMovementIsPossible()){
+                    saveScore(false);
+                }
+            }
+        }
+
+        if (checkWin(2048)){
+            showMessage("you win");
+            saveScore(true);
+        }
+        paintGameTable();
+    }
+
+    private boolean checkIfTableEqualsPreviusMovement(){
+        boolean equal=true;
+        for (int i = 0; i < this.arrayTextView.length; i++) {
+            for (int j = 0; j < this.arrayTextView[i].length; j++) {
+                String textVisibleArray= this.arrayTextView[i][j].getText().toString();
+                if (this.arrayTextViewAux[i][j].equals(textVisibleArray)==false){
+                    equal=false;
+                }
+            }
+        }
+        return equal;
+    }
+
+    private void saveScore(Boolean win){
+        final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.alert_dialog_save_score, null);
+
+        final EditText editText = (EditText) dialogView.findViewById(R.id.edt_comment);
+        TextView textView = dialogView.findViewById(R.id.textViewSaveScore);
+        Button save = (Button) dialogView.findViewById(R.id.buttonSubmit);
+        Button cancel = (Button) dialogView.findViewById(R.id.buttonCancel);
+
+        if (win){
+            textView.setText("Congratulations you win!!!");
+        }else{
+            textView.setText("You lose. Try again!!!");
+        }
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogBuilder.dismiss();
+                finish();
+            }
+        });
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // DO SOMETHINGS
+                showMessage("save buttohn");
+                Score score = new Score();
+                score.setUser(editText.getText().toString());
+                score.setScore(currentScore.getText().toString());
+                score.setTime(Long.toString((System.currentTimeMillis()-timeStart)/1000));
+                score.setMaxNumber(findMaxNumber());
+                ScoreListHelper db = new ScoreListHelper(context);
+                db.insertScore(score);
+                dialogBuilder.dismiss();
+                finish();
+            }
+        });
+
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
+    }
+
     private void initializeArray() {
         this.arrayTextView = new TextView[4][4];
+        this.arrayTextViewAux = new String[4][4];
 
         this.arrayTextView[0][0] = findViewById((R.id.textView1));
         this.arrayTextView[0][1] = findViewById((R.id.textView2));
@@ -126,25 +235,23 @@ public class MainActivity extends AppCompatActivity {
                 done = true;
             }
         }
+
     }
 
-    private void putNewTileDebug(int x, int y) {
-        Random random = new Random();
-        boolean done = false;
-
-        while (done == false) {
-
-            int posibility = random.nextInt(10);
-            if (this.arrayTextView[x][y].getText().equals("")) {
-                this.arrayTextView[x][y].setBackgroundColor(getResources().getColor(R.color.number2));
-                if (posibility >= 6) {
-                    this.arrayTextView[y][x].setText(Integer.toString(4));
-                } else {
-                    this.arrayTextView[y][x].setText(Integer.toString(2));
+    private int countOccupiedTiles(){
+        int tileCount=0;
+        for (int i = 0; i < this.arrayTextView.length; i++) {
+            for (int j = 0; j < this.arrayTextView[i].length; j++) {
+                if (this.arrayTextView[i][j].getText().toString().equals("")==false){
+                    tileCount++;
                 }
-                done = true;
             }
         }
+        return tileCount;
+    }
+
+    private void putNewTileDebug(int x, int y, int number) {
+        this.arrayTextView[y][x].setText(Integer.toString(number));
     }
 
     /**
@@ -352,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
             for (int j = 0; j < this.arrayTextView.length; j++) {
                 String aux = this.arrayTextView[i][j].getText().toString();
                 if (aux.equals("")) {
-                    this.arrayTextView[i][j].setBackgroundColor(getResources().getColor(R.color.text_view_blue));
+                    this.arrayTextView[i][j].setBackgroundColor(getResources().getColor(R.color.nullTile));
                 } else if (aux.equals("2")) {
                     this.arrayTextView[i][j].setBackgroundColor(getResources().getColor(R.color.number2));
                 } else if (aux.equals("4")) {
@@ -435,7 +542,6 @@ public class MainActivity extends AppCompatActivity {
                 for (int y = 0; y < length; y++) {
                     for (int x = 1; x < length; x++) {
                         if (checkTileEqual(direction,x,y) == true) {
-                            showMessage("pair tiles left x: "+x +" y: "+y);
                             pairTile(direction,x,y);
                             move(direction);
                         }
@@ -448,7 +554,6 @@ public class MainActivity extends AppCompatActivity {
                     for (int x = length-2; x >-1; x--) {
                         System.out.println("right "+y+" "+x);
                         if (checkTileEqual(direction,x,y) == true) {
-                            showMessage("pair tiles right");
                             pairTile(direction,x,y);
                             move(direction);
                         }
@@ -461,7 +566,6 @@ public class MainActivity extends AppCompatActivity {
                     for (int y = length-2; y >-1; y--) {
                         System.out.println("down tile"+y+" "+x);
                         if (checkTileEqual(direction,x,y) == true) {
-                            showMessage("pair tiles down");
                             pairTile(direction,x,y);
                             move(direction);
                         }
@@ -474,7 +578,6 @@ public class MainActivity extends AppCompatActivity {
                     for (int y = 1; y <length; y++) {
                         System.out.println("pair tiles up "+y+" "+x);
                         if (checkTileEqual(direction,x,y) == true) {
-                            showMessage("pair tiles up");
                             pairTile(direction,x,y);
                             move(direction);
                         }
@@ -485,8 +588,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void pairTile(String direction,int x, int y){
-        //we calculate the new number
+        //we calculate the new number and the new score
+        int currentGameScore = Integer.parseInt(this.currentScore.getText().toString());
         int number = Integer.parseInt(this.arrayTextView[y][x].getText().toString());
+        currentGameScore += 5*number;
+        this.currentScore.setText(Integer.toString(currentGameScore));
         number = number*2;
 
         switch (direction){
@@ -510,5 +616,91 @@ public class MainActivity extends AppCompatActivity {
     }
     private void showMessage(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void backButton(View view){
+        if (posibleToGoBack){
+            for (int i = 0; i < this.arrayTextViewAux.length; i++) {
+                for (int j = 0; j < this.arrayTextViewAux[i].length; j++) {
+                    this.arrayTextView[i][j].setText(this.arrayTextViewAux[i][j]);
+                }
+            }
+            this.currentScore.setText(this.previusScore);
+            posibleToGoBack=false;
+        }else{
+            showMessage("you have to move again in order to go back");
+        }
+        paintGameTable();
+    }
+
+    public void newGameButtonListener(View view){
+        newGameTable();
+        this.currentScore.setText("0");
+    }
+
+    /**
+     * once the table board is full of tiles this method check if the user can do any movement.
+     * @return true if the movement is posible, false if not.
+     */
+    public boolean checkIfLastMovementIsPossible(){
+        boolean possible =false;
+        int y=0;
+        int x=0;
+        int maxY= this.arrayTextView.length;
+        int maxX= this.arrayTextView[0].length;
+        while (!possible && y<maxY){
+            while (!possible && x<maxX){
+                if (x+1<maxX){
+                    if (checkTileEqual("right",x,y)){
+                        possible=true;
+                    }
+                }
+                if (y+1<maxY){
+                    if (checkTileEqual("down",x,y)){
+                        possible=true;
+                    }
+                }
+                x++;
+            }
+            y++;
+            x=0;
+        }
+        return possible;
+    }
+
+    private boolean checkWin(int number){
+        boolean win =false;
+        int y=0;
+        int x=0;
+        int maxY= this.arrayTextView.length;
+        int maxX= this.arrayTextView[0].length;
+        String winNumber = Integer.toString(number);
+        while (!win && y<maxY){
+            while (!win && x<maxX){
+                if (this.arrayTextView[y][x].getText().toString().equals(winNumber)){
+                    win=true;
+                }
+                x++;
+            }
+            y++;
+            x=0;
+        }
+        return win;
+    }
+
+    private Integer findMaxNumber(){
+        int maxNumber=0;
+
+        for (int i = 0; i < arrayTextView.length; i++) {
+            for (int j = 0; j < arrayTextView[i].length; j++) {
+                if (this.arrayTextView[i][j].getText().toString().equals("")==false){
+                    if (Integer.parseInt(this.arrayTextView[i][j].getText().toString())>maxNumber){
+                        maxNumber= Integer.parseInt(this.arrayTextView[i][j].getText().toString());
+                    }
+                }
+            }
+        }
+
+        return maxNumber;
     }
 }

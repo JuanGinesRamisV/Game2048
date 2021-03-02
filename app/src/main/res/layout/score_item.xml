@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="10dp"
+    android:layout_marginEnd="20dp"
+    android:layout_marginStart="20dp"
+    android:backgroundTint="@color/backGroundTable"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/userText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="User: "/>
+
+        <TextView
+            android:id="@+id/scoreTextCardView"
+            android:layout_alignStart="@id/maxNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="Score: "/>
+
+        <TextView
+            android:id="@+id/scoreTime"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/userText"
+            android:text="time: "/>
+
+        <TextView
+            android:id="@+id/maxNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_below="@id/scoreTextCardView"
+            android:text="max Number: "/>
+
+        <Button
+            android:id="@+id/deleteScoreButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/maxNumber"
+            android:backgroundTint="@color/scoreButtonColor"
+            android:text="delete score"/>
+        <Button
+            android:id="@+id/editScoreButton"
+            android:backgroundTint="@color/scoreButtonColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/maxNumber"
+            android:layout_alignParentEnd="true"
+            android:text="edit score"/>
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

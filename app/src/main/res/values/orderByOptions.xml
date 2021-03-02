@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="orderBy">
+        <item>User</item>
+        <item>Score</item>
+        <item>Time</item>
+    </string-array>
+</resources>
