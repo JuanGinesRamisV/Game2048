@@ -2,6 +2,7 @@ package com.example.game;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,7 +24,8 @@ public class Game extends AppCompatActivity {
     private View generalView;
     private TextView[][] arrayTextView;
     private String[][] arrayTextViewAux;
-    private String previusScore;
+    private String previousScore;
+    private String previousScoreAux;
     private TextView currentScore;
     private TextView maxScore;
     private boolean posibleToGoBack;
@@ -46,6 +48,9 @@ public class Game extends AppCompatActivity {
         newGameTable();
     }
 
+    /**
+     * creates a new gameTable with new tiles
+     */
     private void newGameTable(){
         for (int i = 0; i < arrayTextView.length; i++) {
             for (int j = 0; j < arrayTextView[0].length; j++) {
@@ -53,12 +58,16 @@ public class Game extends AppCompatActivity {
             }
         }
 
-        putNewTileDebug(0,0,1024);
-        putNewTileDebug(0,1,1024);
-        backupArrayTextView();
+        for (int i = 0; i < 2; i++) {
+            putNewTile(); 
+        }
         paintGameTable();
     }
 
+    /**
+     * initializes the views
+     * @param maxScore the maxScore that will be shown.
+     */
     private void initializeViews(String maxScore) {
         this.currentScore = findViewById(R.id.currentScoreNumber);
         this.maxScore = findViewById(R.id.bestScoreNumber);
@@ -68,14 +77,17 @@ public class Game extends AppCompatActivity {
     /**
      * makes a backup of the actual table data in order to do the undoMovement.
      */
-    private void backupArrayTextView(){
+    private String[][] backupArrayTextView(){
+        int length = arrayTextView.length;
+        String[][] arrayToReturn = new String[length][length];
         for (int i = 0; i < this.arrayTextView.length; i++) {
             for (int j = 0; j < this.arrayTextView[i].length; j++) {
-                this.arrayTextViewAux[i][j]=this.arrayTextView[i][j].getText().toString();
+                arrayToReturn[i][j]=this.arrayTextView[i][j].getText().toString();
             }
         }
         this.posibleToGoBack=true;
-        this.previusScore = this.currentScore.getText().toString();
+        this.previousScoreAux = this.currentScore.getText().toString();
+        return arrayToReturn;
     }
 
     /**
@@ -109,35 +121,43 @@ public class Game extends AppCompatActivity {
         });
     }
 
+    /**
+     * calls of the methods that handle the movement of tiles.
+     * @param direction direction to move
+     */
     private void makeMovementSwipe(String direction){
-        backupArrayTextView();
+        String[][] previuosScoreBackupAux = backupArrayTextView();
         move(direction);
         pairTiles(direction);
-        if (checkIfTableEqualsPreviusMovement()){
-            showMessage("tablero igual ");
+        if (checkIfTableEqualsPreviusMovement(previuosScoreBackupAux)){
+
         } else if (countOccupiedTiles()<16){
+            this.arrayTextViewAux = previuosScoreBackupAux;
+            this.previousScore = previousScoreAux;
             putNewTile();
             if (countOccupiedTiles()==16){
-                showMessage("tablero lleno");
                 if (!checkIfLastMovementIsPossible()){
                     saveScore(false);
                 }
             }
         }
-
         if (checkWin(2048)){
-            showMessage("you win");
             saveScore(true);
         }
         paintGameTable();
     }
 
-    private boolean checkIfTableEqualsPreviusMovement(){
+    /**
+     * checks if the actual game table is the same as the previous one.
+     * @param arrayToCompare the previous array.
+     * @return true if the are the same, false if not.
+     */
+    private boolean checkIfTableEqualsPreviusMovement(String[][] arrayToCompare){
         boolean equal=true;
         for (int i = 0; i < this.arrayTextView.length; i++) {
             for (int j = 0; j < this.arrayTextView[i].length; j++) {
                 String textVisibleArray= this.arrayTextView[i][j].getText().toString();
-                if (this.arrayTextViewAux[i][j].equals(textVisibleArray)==false){
+                if (arrayToCompare[i][j].equals(textVisibleArray)==false){
                     equal=false;
                 }
             }
@@ -145,8 +165,14 @@ public class Game extends AppCompatActivity {
         return equal;
     }
 
+    /**
+     * Creates a dialog that will let the user introduce a User name to save the scores into the
+     * database. The dialog has different text if the user wins or not.
+     * @param win true if this is a win false if not
+     */
     private void saveScore(Boolean win){
         final AlertDialog dialogBuilder = new AlertDialog.Builder(this).create();
+        dialogBuilder.setCancelable(false);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.alert_dialog_save_score, null);
 
@@ -172,7 +198,6 @@ public class Game extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // DO SOMETHINGS
-                showMessage("save buttohn");
                 Score score = new Score();
                 score.setUser(editText.getText().toString());
                 score.setScore(currentScore.getText().toString());
@@ -189,6 +214,9 @@ public class Game extends AppCompatActivity {
         dialogBuilder.show();
     }
 
+    /**
+     * initialize the arrays. The textview one and the previous scores one.
+     */
     private void initializeArray() {
         this.arrayTextView = new TextView[4][4];
         this.arrayTextViewAux = new String[4][4];
@@ -238,6 +266,10 @@ public class Game extends AppCompatActivity {
 
     }
 
+    /**
+     * Count how many tiles are occupied.
+     * @return the number of occupied tiles.
+     */
     private int countOccupiedTiles(){
         int tileCount=0;
         for (int i = 0; i < this.arrayTextView.length; i++) {
@@ -250,6 +282,12 @@ public class Game extends AppCompatActivity {
         return tileCount;
     }
 
+    /**
+     * puts a tile on an specified place with the given number. For debbuging purposes.
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param number the number of the tile
+     */
     private void putNewTileDebug(int x, int y, int number) {
         this.arrayTextView[y][x].setText(Integer.toString(number));
     }
@@ -487,6 +525,13 @@ public class Game extends AppCompatActivity {
         }
     }
 
+    /**
+     * Check if the tile is equal to the next one in the next position.
+     * @param direction direction to check.
+     * @param x x coordinate of the tile
+     * @param y x coordinate of the tile
+     * @return
+     */
     private boolean checkTileEqual(String direction,int x, int y){
         String textAux= this.arrayTextView[y][x].getText().toString();
         boolean movement=false;
@@ -535,6 +580,10 @@ public class Game extends AppCompatActivity {
         return movement;
     }
 
+    /**
+     * pair the tiles that can be paired in a given direction and move them.
+     * @param direction direction of the pair.
+     */
     private void pairTiles(String direction){
         int length = this.arrayTextView.length;
         switch (direction) {
@@ -587,6 +636,12 @@ public class Game extends AppCompatActivity {
         }
     }
 
+    /**
+     * pair the given tile
+     * @param direction direction of the pair
+     * @param x x coordinate of the tiles
+     * @param y y coordinate of the tile
+     */
     private void pairTile(String direction,int x, int y){
         //we calculate the new number and the new score
         int currentGameScore = Integer.parseInt(this.currentScore.getText().toString());
@@ -618,6 +673,10 @@ public class Game extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Returns to the previous movement.
+     * @param view button.
+     */
     public void backButton(View view){
         if (posibleToGoBack){
             for (int i = 0; i < this.arrayTextViewAux.length; i++) {
@@ -625,7 +684,7 @@ public class Game extends AppCompatActivity {
                     this.arrayTextView[i][j].setText(this.arrayTextViewAux[i][j]);
                 }
             }
-            this.currentScore.setText(this.previusScore);
+            this.currentScore.setText(this.previousScore);
             posibleToGoBack=false;
         }else{
             showMessage("you have to move again in order to go back");
@@ -633,14 +692,36 @@ public class Game extends AppCompatActivity {
         paintGameTable();
     }
 
+    /**
+     * Ask the user and creates a new game.
+     * @param view button
+     */
     public void newGameButtonListener(View view){
-        newGameTable();
-        this.currentScore.setText("0");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle("New Game");
+        builder.setMessage("Are you sure that you want to create a new game?");
+        builder.setPositiveButton("YES",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        newGameTable();
+                        currentScore.setText("0");
+                    }
+                });
+        builder.setNegativeButton("NO,take me back", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
      * once the table board is full of tiles this method check if the user can do any movement.
-     * @return true if the movement is posible, false if not.
+     * @return true if the movement is possible, false if not.
      */
     public boolean checkIfLastMovementIsPossible(){
         boolean possible =false;
@@ -648,6 +729,7 @@ public class Game extends AppCompatActivity {
         int x=0;
         int maxY= this.arrayTextView.length;
         int maxX= this.arrayTextView[0].length;
+
         while (!possible && y<maxY){
             while (!possible && x<maxX){
                 if (x+1<maxX){
@@ -668,6 +750,11 @@ public class Game extends AppCompatActivity {
         return possible;
     }
 
+    /**
+     * checks if the player have won
+     * @param number the number that is considered a win
+     * @return true if the player wins. false if not.
+     */
     private boolean checkWin(int number){
         boolean win =false;
         int y=0;
@@ -688,9 +775,12 @@ public class Game extends AppCompatActivity {
         return win;
     }
 
+    /**
+     * finds the maxNumber of the game table.
+     * @return the max number on the game table.
+     */
     private Integer findMaxNumber(){
         int maxNumber=0;
-
         for (int i = 0; i < arrayTextView.length; i++) {
             for (int j = 0; j < arrayTextView[i].length; j++) {
                 if (this.arrayTextView[i][j].getText().toString().equals("")==false){

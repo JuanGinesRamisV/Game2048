@@ -1,16 +1,13 @@
 package com.example.game.recyclerView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,11 +28,15 @@ public class AdapterScore extends RecyclerView.Adapter<AdapterScore.ViewHolderSc
     public AdapterScore(ScoreListHelper mDB,Context context) {
         this.context = context;
         this.mDB = mDB;
-        this.scores= mDB.queryAll();
+        this.scores= mDB.queryAllOrderByUser();
     }
 
     public void setScores(ArrayList<Score> scores) {
         this.scores = scores;
+    }
+
+    public ArrayList<Score> getScores() {
+        return scores;
     }
 
     @NonNull
@@ -63,13 +64,12 @@ public class AdapterScore extends RecyclerView.Adapter<AdapterScore.ViewHolderSc
         this.scores = mDB.queryAll();
     }
 
-    public class ViewHolderScore extends RecyclerView.ViewHolder {
+
+    public class ViewHolderScore extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView userScore;
         private TextView score;
         private TextView time;
         private TextView maxNumber;
-        private Button editButton;
-        private Button deleteButton;
         private String id;
 
         public ViewHolderScore(@NonNull View itemView) {
@@ -79,8 +79,7 @@ public class AdapterScore extends RecyclerView.Adapter<AdapterScore.ViewHolderSc
             score = itemView.findViewById(R.id.scoreTextCardView);
             time = itemView.findViewById(R.id.scoreTime);
             maxNumber = itemView.findViewById(R.id.maxNumber);
-            editButton = itemView.findViewById(R.id.editScoreButton);
-            deleteButton = itemView.findViewById(R.id.deleteScoreButton);
+            itemView.setOnClickListener(this);
         }
 
         /**
@@ -104,49 +103,23 @@ public class AdapterScore extends RecyclerView.Adapter<AdapterScore.ViewHolderSc
             final String ID_SCORE_PUNTUATION="ID_SCORE_PUNTUATION";
             final String ID_TIME="ID_TIME";
             final String ID_MAX_NUMBER="ID_MAX_NUMBER";
+        }
 
-            this.deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setCancelable(true);
-                    builder.setTitle("Delete");
-                    builder.setMessage("Are you sure that you want to delete this score?");
-                    builder.setPositiveButton("YES",
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    System.out.println("edit button clicked" + id);
-                                    Toast.makeText(context,id,Toast.LENGTH_SHORT).show();
-                                    mDB.delete(Integer.parseInt(id));
-                                    scores = mDB.queryAll();
-                                    notifyDataSetChanged();
-                                }
-                            });
-                    builder.setNegativeButton("NO,take me back", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-            });
-
-            this.editButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, EditScore.class);
-                    intent.putExtra(ID_SCORE,id);
-                    intent.putExtra(ID_USER, userScore.getText());
-                    intent.putExtra(ID_SCORE_PUNTUATION, score.getText());
-                    intent.putExtra(ID_TIME,time.getText());
-                    intent.putExtra(ID_MAX_NUMBER,maxNumber.getText());
-                    ((Activity) context).startActivityForResult(
-                            intent, ManageScores.SCORE_EDIT);
-                }
-            });
+        @Override
+        public void onClick(View view) {
+            final String ID_SCORE="ID_SCORE";
+            final String ID_USER="ID_USER";
+            final String ID_SCORE_PUNTUATION="ID_SCORE_PUNTUATION";
+            final String ID_TIME="ID_TIME";
+            final String ID_MAX_NUMBER="ID_MAX_NUMBER";
+            Intent intent = new Intent(context, EditScore.class);
+            intent.putExtra(ID_SCORE,id);
+            intent.putExtra(ID_USER, userScore.getText());
+            intent.putExtra(ID_SCORE_PUNTUATION, score.getText());
+            intent.putExtra(ID_TIME,time.getText());
+            intent.putExtra(ID_MAX_NUMBER,maxNumber.getText());
+            ((Activity) context).startActivityForResult(
+                    intent, ManageScores.SCORE_EDIT);
         }
     }
 }

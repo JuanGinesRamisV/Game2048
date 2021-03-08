@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.game.data.Score;
 import com.example.game.database.ScoreListHelper;
@@ -61,10 +60,8 @@ public class EditScore extends AppCompatActivity implements View.OnClickListener
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.editScoreCancelButton:
-                Toast.makeText(this,"cancel",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.editScoreSaveButton:
-                Toast.makeText(this,"edit",Toast.LENGTH_SHORT).show();
                 this.score.setUser(editTextuser.getText().toString());
                 this.score.setScore(editTextScore.getText().toString());
                 this.score.setTime(editTextTime.getText().toString());

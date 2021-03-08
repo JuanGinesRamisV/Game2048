@@ -13,7 +13,7 @@
         android:textColor="@color/black"
         android:background="@color/backGround"
         android:textSize="20dp"
-        android:text="Serch by: "/>
+        android:text="Search by: "/>
 
     <RelativeLayout
         android:layout_width="match_parent"

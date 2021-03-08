@@ -26,7 +26,6 @@ public class Menu extends AppCompatActivity {
             maxScore="0";
         }
         intent.putExtra("maxScore", maxScore);
-        Toast.makeText(this,maxScore,Toast.LENGTH_SHORT).show();
         startActivity(intent);
     }
 

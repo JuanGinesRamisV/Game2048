@@ -124,6 +124,81 @@ public class ScoreListHelper extends SQLiteOpenHelper {
         return scores;
     }
 
+    public ArrayList<Score> queryAllOrderByUser(){
+        ArrayList<Score> scores = new ArrayList<>();
+        String query = "SELECT * FROM " + SCORE_TABLE+" order by "+ KEY_USER +" ASC";
+        System.out.println("order by user");
+        Cursor cursor= null;
+        if (mReadableDB==null){
+            mReadableDB = getReadableDatabase();
+        }
+        cursor = mReadableDB.rawQuery(query,null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Score score = new Score();
+                score.setId(Integer.toString(cursor.getInt(cursor.getColumnIndex(KEY_ID))));
+                score.setUser(cursor.getString(cursor.getColumnIndex(KEY_USER)));
+                score.setScore(cursor.getString(cursor.getColumnIndex(KEY_SCORE)));
+                score.setTime(cursor.getString(cursor.getColumnIndex(KEY_TIME)));
+                score.setMaxNumber(cursor.getInt(cursor.getColumnIndex(KEY_MAX_NUMBER)));
+                scores.add(score);
+                cursor.moveToNext();
+            }
+        }
+        return scores;
+    }
+
+    public ArrayList<Score> queryAllOrderByScore(){
+        ArrayList<Score> scores = new ArrayList<>();
+        String query = "SELECT * FROM " + SCORE_TABLE+" order by "+ KEY_SCORE;
+
+        Cursor cursor= null;
+        if (mReadableDB==null){
+            mReadableDB = getReadableDatabase();
+        }
+        cursor = mReadableDB.rawQuery(query,null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Score score = new Score();
+                score.setId(Integer.toString(cursor.getInt(cursor.getColumnIndex(KEY_ID))));
+                score.setUser(cursor.getString(cursor.getColumnIndex(KEY_USER)));
+                score.setScore(cursor.getString(cursor.getColumnIndex(KEY_SCORE)));
+                score.setTime(cursor.getString(cursor.getColumnIndex(KEY_TIME)));
+                score.setMaxNumber(cursor.getInt(cursor.getColumnIndex(KEY_MAX_NUMBER)));
+                scores.add(score);
+                cursor.moveToNext();
+            }
+        }
+        return scores;
+    }
+
+    public ArrayList<Score> queryAllOrderByTime(){
+        ArrayList<Score> scores = new ArrayList<>();
+        String query = "SELECT * FROM " + SCORE_TABLE+" order by "+ KEY_TIME;
+
+        Cursor cursor= null;
+        if (mReadableDB==null){
+            mReadableDB = getReadableDatabase();
+        }
+        cursor = mReadableDB.rawQuery(query,null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Score score = new Score();
+                score.setId(Integer.toString(cursor.getInt(cursor.getColumnIndex(KEY_ID))));
+                score.setUser(cursor.getString(cursor.getColumnIndex(KEY_USER)));
+                score.setScore(cursor.getString(cursor.getColumnIndex(KEY_SCORE)));
+                score.setTime(cursor.getString(cursor.getColumnIndex(KEY_TIME)));
+                score.setMaxNumber(cursor.getInt(cursor.getColumnIndex(KEY_MAX_NUMBER)));
+                scores.add(score);
+                cursor.moveToNext();
+            }
+        }
+        return scores;
+    }
+
     /**
      * deletes the score with the given id
      * @param id id of the score to delete

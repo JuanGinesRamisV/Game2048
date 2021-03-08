@@ -42,23 +42,9 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="10dp"
             android:layout_below="@id/scoreTextCardView"
-            android:text="max Number: "/>
+            android:text="max Number: "
+            android:layout_marginBottom="6dp"/>
 
-        <Button
-            android:id="@+id/deleteScoreButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/maxNumber"
-            android:backgroundTint="@color/scoreButtonColor"
-            android:text="delete score"/>
-        <Button
-            android:id="@+id/editScoreButton"
-            android:backgroundTint="@color/scoreButtonColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/maxNumber"
-            android:layout_alignParentEnd="true"
-            android:text="edit score"/>
     </RelativeLayout>
 
 </androidx.cardview.widget.CardView>
